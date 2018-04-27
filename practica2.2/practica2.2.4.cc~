@@ -10,7 +10,7 @@
 #include <time.h>
 
 
-//Ejercicio4
+//Ejercicio2
 
  int main(int argc, char* argv[]){
 
@@ -53,8 +53,7 @@
 	
 	listen(sd,15);
 	
-	/////admite todas las conexiones posibles
-	while(true){
+	
 	struct sockaddr src_addr;
 	socklen_t addrlen = sizeof(src_addr);
 	
@@ -79,7 +78,7 @@
 
 
 	}
-}
+
 	freeaddrinfo(res);
 
 

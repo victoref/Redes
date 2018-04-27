@@ -10,7 +10,7 @@
 #include <time.h>
 
 
-//Ejercicio4
+//Ejercicio5
 
  int main(int argc, char* argv[]){
 
@@ -43,43 +43,31 @@
 		return -1;
 	}
 
-	int aux = bind(sd, res->ai_addr, res->ai_addrlen);
-
 	
-	if(aux == -1){
-		std::cout << "Error: " << gai_strerror(err)<<std::endl;
-		return -1;
-	}
 	
 	listen(sd,15);
 	
-	/////admite todas las conexiones posibles
-	while(true){
 	struct sockaddr src_addr;
 	socklen_t addrlen = sizeof(src_addr);
 	
 	int sd_src = accept(sd, &src_addr, &addrlen);
 
-	while(true){
-		
-		char buf [256];
 
-		ssize_t s = recv(sd_src, buf, 255, 0);
-		
-		if(s == 0){ // Se ha cerrado la conexión.
-			break;
-		}
-		
+	char peticion[20];
+	memset((void*) peticion, '\0',20);
+	peticion[0] = argv[3][0];
 
-		getnameinfo(&src_addr, addrlen, host, NI_MAXHOST, serv, NI_MAXSERV, NI_NUMERICHOST);
-		std::cout << host << " " << serv <<std::endl;
-
-		
-		send(sd_src,buf, s, 0);
-
-
+	send(sd_src,peticion,20,0);
+	
+	if(peticion[0] == 'q'){
+		return 0;
 	}
-}
+	
+		
+	recv(sd_src, peticion, 20, 0);
+	
+	std::cout << peticion << std::endl;
+
 	freeaddrinfo(res);
 
 
