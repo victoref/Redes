@@ -11,6 +11,8 @@
 
 
 //Ejercicio4
+	bool conec = true;
+
 
  int main(int argc, char* argv[]){
 
@@ -25,7 +27,7 @@
 	int err = getaddrinfo(argv[1], argv[2], &hints, &res);
 
 	if(err != 0){
-		std::cout << "Error: " << gai_strerror(err)<<std::endl;
+		std::cout << "Error" <<std::endl;
 		return -1;
 	}
 
@@ -39,7 +41,7 @@
 	int sd = socket(res->ai_family, res->ai_socktype, 0);
 	
 	if(sd == -1){
-		std::cout << "Error: " << gai_strerror(sd)<<std::endl;
+		std::cout << "Error" << std::endl;
 		return -1;
 	}
 
@@ -47,14 +49,14 @@
 
 	
 	if(aux == -1){
-		std::cout << "Error: " << gai_strerror(aux)<<std::endl;
+		std::cout << "Error" <<std::endl;
 		return -1;
 	}
 	
 	listen(sd,15);
-	bool conec = true;
 	/////admite todas las conexiones posibles
 	while(true){
+		
 		struct sockaddr src_addr;
 		socklen_t addrlen = sizeof(src_addr);
 		
@@ -70,16 +72,13 @@
 			
 			if(s == 0){ // Se ha cerrado la conexión.
 				conec =false;
-				return 0;
 			}
 			
-
-			getnameinfo(&src_addr, addrlen, host, NI_MAXHOST, serv, NI_MAXSERV, NI_NUMERICHOST);
-			std::cout << host << " " << serv <<std::endl;
-
-			
-			send(sd_src,buf, s, 0);
-
+			else{
+				getnameinfo(&src_addr, addrlen, host, NI_MAXHOST, serv, NI_MAXSERV, NI_NUMERICHOST);
+				std::cout << host << " " << serv <<std::endl;
+				send(sd_src,&buf, s, 0);
+			}
 
 		}
 	}
