@@ -39,35 +39,46 @@
 	int sd = socket(res->ai_family, res->ai_socktype, 0);
 	
 	if(sd == -1){
-		std::cout << "Error: " << gai_strerror(err)<<std::endl;
+		std::cout << "Error: " << gai_strerror(sd)<<std::endl;
 		return -1;
 	}
 
 	
 	
-	listen(sd,15);
+	//listen(sd,15);
 	
 	struct sockaddr src_addr;
 	socklen_t addrlen = sizeof(src_addr);
 	
-	int sd_src = accept(sd, &src_addr, &addrlen);
-
-
-	char peticion[20];
-	memset((void*) peticion, '\0',20);
-	peticion[0] = argv[3][0];
-
-	send(sd_src,peticion,20,0);
+	int conc = connect(sd, res->ai_addr, res->ai_addrlen);
 	
-	if(peticion[0] == 'q'){
-		return 0;
+	if(conc == -1){
+		std::cout << "Error: " << gai_strerror(conc)<<std::endl;
+		return -1;
 	}
+
+
+	char peticion[256];
 	
 		
-	recv(sd_src, peticion, 20, 0);
-	
-	std::cout << peticion << std::endl;
+	while(true){
+		
+		memset((void*) peticion, '\0',256);
+		std::cin>>peticion;
+		
+		if(peticion[0] == 'q'){
+			close(sd);
+			return 0;
+		}
+		
+		send(sd,peticion,256,0);
 
+		std::cout << "-------------" << std::endl;
+			
+		ssize_t s = recv(sd, &peticion, 255, 0);
+					
+		std::cout << peticion << std::endl;
+	}
 	freeaddrinfo(res);
 
 

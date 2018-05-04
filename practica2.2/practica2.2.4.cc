@@ -39,7 +39,7 @@
 	int sd = socket(res->ai_family, res->ai_socktype, 0);
 	
 	if(sd == -1){
-		std::cout << "Error: " << gai_strerror(err)<<std::endl;
+		std::cout << "Error: " << gai_strerror(sd)<<std::endl;
 		return -1;
 	}
 
@@ -47,39 +47,43 @@
 
 	
 	if(aux == -1){
-		std::cout << "Error: " << gai_strerror(err)<<std::endl;
+		std::cout << "Error: " << gai_strerror(aux)<<std::endl;
 		return -1;
 	}
 	
 	listen(sd,15);
-	
+	bool conec = true;
 	/////admite todas las conexiones posibles
 	while(true){
-	struct sockaddr src_addr;
-	socklen_t addrlen = sizeof(src_addr);
-	
-	int sd_src = accept(sd, &src_addr, &addrlen);
-
-	while(true){
+		struct sockaddr src_addr;
+		socklen_t addrlen = sizeof(src_addr);
 		
-		char buf [256];
-
-		ssize_t s = recv(sd_src, buf, 255, 0);
+		int sd_src = accept(sd, &src_addr, &addrlen);
 		
-		if(s == 0){ // Se ha cerrado la conexión.
-			break;
+		conec = true;
+
+		while(conec){
+			
+			char buf [256];
+
+			ssize_t s = recv(sd_src, &buf, 255, 0);
+			
+			if(s == 0){ // Se ha cerrado la conexión.
+				conec =false;
+				return 0;
+			}
+			
+
+			getnameinfo(&src_addr, addrlen, host, NI_MAXHOST, serv, NI_MAXSERV, NI_NUMERICHOST);
+			std::cout << host << " " << serv <<std::endl;
+
+			
+			send(sd_src,buf, s, 0);
+
+
 		}
-		
-
-		getnameinfo(&src_addr, addrlen, host, NI_MAXHOST, serv, NI_MAXSERV, NI_NUMERICHOST);
-		std::cout << host << " " << serv <<std::endl;
-
-		
-		send(sd_src,buf, s, 0);
-
-
 	}
-}
+
 	freeaddrinfo(res);
 
 
