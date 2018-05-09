@@ -25,7 +25,7 @@
 	int err = getaddrinfo(argv[1], argv[2], &hints, &res);
 
 	if(err != 0){
-		std::cout << "Error: " << gai_strerror(err)<<std::endl;
+		std::cout << "Error"<<std::endl;
 		return -1;
 	}
 
@@ -39,7 +39,7 @@
 	int sd = socket(res->ai_family, res->ai_socktype, 0);
 	
 	if(sd == -1){
-		std::cout << "Error: " << gai_strerror(err)<<std::endl;
+		std::cout << "Error" <<std::endl;
 		return -1;
 	}
 
@@ -47,7 +47,7 @@
 
 	
 	if(aux == -1){
-		std::cout << "Error: " << gai_strerror(err)<<std::endl;
+		std::cout << "Error" <<std::endl;
 		return -1;
 	}
 
