@@ -81,6 +81,8 @@ extern "C" void*start_routine(void* _st){
 }
 
 #define NUM_THREADS 10 
+
+
  int main(int argc, char* argv[]){
 
 
@@ -134,6 +136,7 @@ extern "C" void*start_routine(void* _st){
 		pthread_create(&tid, &attr, start_routine, static_cast<void*>(st));
 	}
 
+	//join hilos
 	for (int i = 0; i < NUM_THREADS; i++){
 		pthread_join(tids[i], NULL);
 	}

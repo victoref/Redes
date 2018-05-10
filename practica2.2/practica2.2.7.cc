@@ -16,8 +16,8 @@
 
 class ServerThread{
 public:
-	ServerThread(int s) :sd(s){};
-	virtual~ServerThread(){ close(sd)};
+	ServerThread(int s) :sd(s), conec(true) {};
+	virtual~ServerThread(){ close(sd); };
 	void do_msg(){
 		//while
 		while (conec){
@@ -42,6 +42,8 @@ public:
 
 private:
 	int sd;
+	bool conec;
+
 };
 
 
@@ -53,7 +55,6 @@ extern "C" void*start_routine(void* _st){
 }
 
 #define NUM_THREADS 10 
-bool conec = true;
 
  int main(int argc, char* argv[]){
 
