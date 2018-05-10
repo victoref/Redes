@@ -24,16 +24,16 @@ public:
 
 			char buf[256];
 
-			ssize_t s = recv(sd_src, &buf, 255, 0);
+			ssize_t s = recv(sd, &buf, 255, 0);
 
 			if (s == 0){ // Se ha cerrado la conexión.
 				conec = false;
 			}
 
 			else{
-				getnameinfo(&src_addr, addrlen, host, NI_MAXHOST, serv, NI_MAXSERV, NI_NUMERICHOST);
-				std::cout << host << " " << serv << std::endl;
-				send(sd_src, &buf, s, 0);
+				
+				
+				send(sd, &buf, s, 0);
 			}
 
 		}
@@ -106,15 +106,14 @@ extern "C" void*start_routine(void* _st){
 
 		int sd_src = accept(sd, &src_addr, &addrlen);
 
-		conec = true;
-
-		pthread tid;
+		
+		pthread_t tid;
 		pthread_attr_t attr;
 
 		ServerThread * st = new ServerThread(sd_src);
 
 		pthread_attr_init(&attr);
-		pthread_attr_setdetachedstate(&attr, PTHREAD_CREATE_DETACHED);
+		pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
 
 		pthread_create(&tid, &attr, start_routine, static_cast<void*>(st));
 	}

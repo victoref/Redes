@@ -24,10 +24,13 @@ public:
 
 			char buf[256];
 
+			char host[NI_MAXHOST];
+			char serv[NI_MAXSERV];
+
 			struct sockaddr src_addr;
 			socklen_t addrlen = sizeof(src_addr);
 
-			ssize_t size = recvfrom(sd, buf, 255, 0, &src_addr, &addrlen);
+			ssize_t size = recvfrom(sd, &buf, 255, 0, &src_addr, &addrlen);
 
 			getnameinfo(&src_addr, addrlen, host, NI_MAXHOST, serv, NI_MAXSERV, NI_NUMERICHOST);
 			std::cout << host << " " << serv << std::endl;
@@ -57,13 +60,18 @@ public:
 
 			}
 			else if (buf[0] == 'q'){
-				std::cout << size << " bytes" << std::endl << "Saliendo..." << std::endl;
+				std::cout << size << " bytes" << std::endl << "Cerrando cliente" << std::endl;
 				break;
 			}
 			else{
 				std::cout << "Comando incorrecto" << std::endl;
 
 			}
+
+			std::cout << pthread_self() << std::endl;
+
+			sleep(5);
+
 		}
 	};
 
@@ -96,7 +104,7 @@ extern "C" void*start_routine(void* _st){
 	int err = getaddrinfo(argv[1], argv[2], &hints, &res);
 
 	if(err != 0){
-		std::cout << "Error" <<std::endl;
+		std::cout << "Errora" <<std::endl;
 		return -1;
 	}
 
@@ -110,7 +118,7 @@ extern "C" void*start_routine(void* _st){
 	int sd = socket(res->ai_family, res->ai_socktype, 0);
 	
 	if(sd == -1){
-		std::cout << "Error" <<std::endl;
+		std::cout << "Errorc" <<std::endl;
 		return -1;
 	}
 
@@ -118,12 +126,12 @@ extern "C" void*start_routine(void* _st){
 
 	
 	if(aux == -1){
-		std::cout << "Error" << std::endl;
+		std::cout << "Errorb" << std::endl;
 		return -1;
 	}
 
 		//pthread_t tid;
-	pthread_t * tids[NUM_THREADS];
+	pthread_t tids[NUM_THREADS];
 	for (int i = 0; i < NUM_THREADS; i++){
 
 		pthread_attr_t attr;
@@ -131,19 +139,28 @@ extern "C" void*start_routine(void* _st){
 		ServerThread * st = new ServerThread(sd);
 
 		pthread_attr_init(&attr);
-		pthread_attr_setdetachedstate(&attr, PTHREAD_CREATE_DETACHED);
+		pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
 
-		pthread_create(&tid, &attr, start_routine, static_cast<void*>(st));
+		pthread_create(&tids[i], &attr, start_routine, static_cast<void*>(st));
 	}
 
-	//join hilos
-	for (int i = 0; i < NUM_THREADS; i++){
+	//join hilos: Preguntar
+	/*for (int i = 0; i < NUM_THREADS; i++){
 		pthread_join(tids[i], NULL);
+	}*/
+
+	char c = 'c';
+	while(c != 'q'){
+	   	
+		std::cin >> c;
+		
 	}
 
 
 
 	freeaddrinfo(res);
+
+  	close(sd);
 
 
 	return 0;
