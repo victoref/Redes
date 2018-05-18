@@ -21,7 +21,7 @@ public:
 
     void to_bin()
     {
-	int32_t total = 80 * sizeof(char) + 2 * sizeof(int16_t);
+	int32_t total = 80 * sizeof(char) + 2 * sizeof(int16_t) + sizeof(int32_t);
 	alloc_data(total);
 	char * idx = _data + sizeof(int32_t);
 	memcpy(idx, (void*)name, 80);
@@ -39,10 +39,11 @@ public:
 	char * idx = data + sizeof(int32_t);
 	memcpy(name, idx, 80);
 	idx += 80;
-	memcpy(&x, idx, 2);
+	memcpy(&x, idx, sizeof(int16_t));
 	idx += sizeof(int16_t);//2 por el tam de int16_t (2bytes)
-	memcpy(&y, idx, 2);
+	memcpy(&y, idx, sizeof(int16_t));
 	idx += sizeof(int16_t);
+
 
 	/*if(success)
 	 return 0;
@@ -98,18 +99,18 @@ int main(int argc, char **argv)
 	//tamaño
 	int32_t tam;
 	read(fdr, &tam, sizeof(int32_t));
-
+	std::cout << tam;
 	lseek(fdr, 0, SEEK_SET);
 
 	//data aux
 	char* aux = (char*)malloc(tam);
 	read(fdr, aux, tam);
 
-	playerCopy.from_bin(buff);
+	playerCopy.from_bin(aux);
 	
 	close(fdr);
 	
-	std::cout << playerCopy.name << " " << playerCopy.x << std::endl;
+	std::cout << playerCopy.name << " " << playerCopy.x << " " << playerCopy.y << std::endl;
 
 	return 0;
 
