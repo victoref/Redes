@@ -12,14 +12,46 @@ public:
 
     ChatMessage(const char * n, const std::string m)
     {
+		strncopy(nick,n,8);
+		m.copy(message,80);
+
+
     };
 
     void to_bin()
     {
+
+    	int32_t total = (80* sizeof(char)) + (8 * sizeof(char)) + sizeof(int32_t);
+    	alloc_data(total);
+
+    	char* idx = _data;
+		memcpy(idx,&total, sizeof(int32_t));
+		idx = _data + sizeof(int32_t);
+
+		memcpy(idx,(void*)nick, 8);
+		idx += 8;
+
+		memcpy(idx,(void*)message,80);
+		idx+= 80;
+
+
     }
 
     virtual int from_bin(char * bobj)
     {
+
+    	char *idx = bobj + sizeof(int32_t);
+
+		memcpy(nick,idx,8);
+		idx += 8;
+
+		memcpy(message,idx,80);
+		idx += 80;
+
+		return 0;
+
+
+
     }
 
     char message[80];
@@ -38,6 +70,14 @@ public:
     void do_message(char * buffer)
     {
 
+    		ChatMessage msg;
+    		msg.from_bin(buffer);
+
+    		for(Socket* s : connections)
+    			socket.send(&msg, s);
+
+    	
+
     }
 };
 
@@ -49,10 +89,36 @@ public:
 
     void input_thread()
     {
+
+    	char input[80];
+    	ChatMessage* msg;
+
+    	while(true){
+
+    		std::cin >> input;
+
+    		msg = new ChatMessage(nick, input);
+    		msg->to_bin();
+    		socket.send(msg, &socket);
+    	}
+
     }
 
     void net_thread()
     {
+
+    	ChatMessage msg;
+    	char text[80];
+
+    	while(true){
+
+    		socket.recv(text);
+    		msg.from_bin(text);
+
+    		if(msg.nick != nick)
+				std::cout << msg.nick <<  ": "<< msg.message;
+    		
+    	}
     }
 
 private:

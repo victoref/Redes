@@ -46,11 +46,22 @@ Socket::Socket(const char * address, const char * port):sd(-1)
 
 	struct addrinfo *res;
 
-	getaddrinfo(address, port, &hints, &res);
-	sd = socket(hints.ai_family, hints.ai_socktype,0);
+	int addrinfo = getaddrinfo(address, port, &hints, &res);
 
-	if(sd == -1)
+	if(addrinfo != 0){
+
+		throw new std::runtime_error("Error getaddrinfo");
+	}
+
+	sd = socket(res->ai_family, res->ai_socktype,0);
+
+	if(sd == -1){
 		throw std::runtime_error("error al crear el socket udp");
+	}
+
+	sa = res->ai_addr;
+	sa_len = res->ai_addrlen;
+	
 }
 
 // ----------------------------------------------------------------------------
@@ -64,12 +75,57 @@ int Socket::bind()
 
 int Socket::send(Serializable * obj, Socket * sock)
 {
+	obj->to_bin();
+	int aux = sendto(sock->sd,(void*)obj->_data,obj->_size,0,&sock->sa,sock->sa_len);
+
+	if(aux == -1)
+		return -1;
+	
+
+	return 0;
 }
 
 // ----------------------------------------------------------------------------
 
 int Socket::recv(char * buffer, Socket ** sock)
 {
+	struct sockaddr src;
+	socklen_t port = sizeof(src);
+
+	buffer = (char*)malloc(MAX_MESSAGE_SIZE);
+
+	char host[NI_MAXHOST];
+	char server[NI_MAXSERV];
+
+	if(sock != 0){
+
+		ssize_t recived =  recvfrom(sd, (void* )&buffer,
+		    			MAX_MESSAGE_SIZE, 0, &src, &port);
+		sock = new Socket(&src,port);
+		//Serializable::from_bin(buffer)
+		
+		if(recived == -1)
+			return -1;
+		
+	}
+
+	return 0;
+
+
+	/*
+		ssize_t recived =  recvfrom(sd, (void* )&buffer,
+		    			MAX_MESSAGE_SIZE, 0, &src, &port);
+		if(recived != 0){
+			sock = new Socket(&src,port);
+			return 0;
+		}
+		else
+			return -1;
+
+
+	*/
+
+
 }
 
 // ----------------------------------------------------------------------------
